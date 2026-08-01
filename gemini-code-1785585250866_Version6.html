@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RELOAD PRIME | Monnaies de jeux</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b0c10;
+            --bg-card: #12141d;
+            --accent-purple: #7928ca;
+            --accent-cyan: #00f2fe;
+            --accent-pink: #ff0080;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --glow-purple: 0 0 15px rgba(121, 40, 202, 0.4);
+            --radius-sm: 8px;
+            --radius-lg: 24px;
+            --font-heading: 'Orbitron', sans-serif;
+            --font-sub: 'Rajdhani', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --sidebar-width: 240px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER & NAVBAR SUPERIEURE --- */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(11, 12, 16, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-container {
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .toggle-menu-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--accent-cyan);
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-menu-btn:hover {
+            background: rgba(0, 242, 254, 0.15);
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .logo-icon {
+            width: 26px;
+            height: 26px;
+            color: var(--accent-cyan);
+            flex-shrink: 0;
+        }
+
+        /* RELOAD en blanc, PRIME en cyan néon */
+        .logo-text {
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+            white-space: nowrap;
+            -webkit-text-fill-color: #ffffff;
+            /* légère lueur blanche */
+            text-shadow: 0 0 6px rgba(255,255,255,0.9);
+        }
+
+        .logo-text span {
+            /* PRIME en cyan néon */
+            background: linear-gradient(135deg, var(--accent-cyan), #00c8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(0,242,254,0.35);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        /* Bouton Compte : même design/couleurs que le panier */
+        .account-btn {
+            background: linear-gradient(135deg, rgba(121,40,202,0.2), rgba(0,242,254,0.2));
+            border: 1px solid rgba(0,242,254,0.3);
+            color: #fff;
+            padding: 0.6rem 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-sub);
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .account-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            color: inherit;
+            flex-shrink: 0;
+        }
+
+        .account-btn:hover {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            color: #0d1117;
+        }
+
+        .cart-btn {
+            background: linear-gradient(135deg, rgba(121,40,202,0.2), rgba(0,242,254,0.2));
+            border: 1px solid rgba(0,242,254,0.3);
+            color: #fff;
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-sub);
+            font-weight: 700;
+        }
+
+        .cart-badge {
+            background: var(--accent-pink);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 99px;
+        }
+
+        /* --- MENU MOBILE LATÉRAL (GAUCHE) --- */
+        .mobile-overlay {
+            position: fixed; inset: 0;
+            background: rgba(5, 6, 10, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 150; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .mobile-drawer {
+            position: fixed; top: 0; left: -280px;
+            width: 280px; height: 100%;
+            background: #0f111a;
+            border-right: 1px solid var(--border-color);
+            z-index: 151; display: flex; flex-direction: column;
+            padding: 1.5rem 1rem; gap: 1.5rem;
+            transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .mobile-drawer.open { left: 0; }
+
+        .mobile-drawer-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-link-btn {
+            display: flex; align-items: center; gap: 12px;
+            background: transparent; border: none; color: var(--text-muted);
+            padding: 0.8rem 1rem; border-radius: var(--radius-sm);
+            cursor: pointer; font-family: var(--font-sub); font-weight: 600;
+            font-size: 1rem; text-decoration: none; transition: all 0.2s ease;
+            width: 100%; text-align: left;
+        }
+
+        .nav-link-btn:hover, .nav-link-btn.active {
+            color: #fff; background: rgba(0, 242, 254, 0.12);
+        }
+
+        .nav-link-btn svg { width: 20px; height: 20px; stroke: currentColor; flex-shrink: 0; }
+
+        /* --- LAYOUT GLOBAL & SIDEBAR PC --- */
+        .app-layout { display: flex; width: 100%; flex: 1; }
+
+        .sidebar-menu {
+            width: var(--sidebar-width);
+            background: rgba(18, 20, 29, 0.95);
+            border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column;
+            padding: 1.2rem 0.8rem; gap: 1rem;
+            transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            position: sticky; top: 61px; height: calc(100vh - 61px);
+            z-index: 90; flex-shrink: 0;
+        }
+
+        .sidebar-menu.collapsed { --sidebar-width: 70px; }
+
+        .sidebar-links { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        .sidebar-text { transition: opacity 0.2s ease; opacity: 1; }
+        .sidebar-menu.collapsed .sidebar-text { opacity: 0; pointer-events: none; }
+
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+        /* --- CARROUSEL AVEC VIGNETTES DROITE ET GAUCHE --- */
+        .hero { padding: 1.5rem 1.5rem 0.5rem 1.5rem; }
+
+        .carousel-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .main-card {
+            position: relative;
+            width: 100%;
+            height: 460px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-color);
+            cursor: grab;
+        }
+
+        .main-card:active {
+            cursor: grabbing;
+        }
+
+        .main-card img.bg-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.4s ease-in-out;
+            pointer-events: none;
+        }
+
+        .main-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(11, 12, 16, 0.9) 0%, rgba(11, 12, 16, 0.3) 60%, rgba(0,0,0,0.1) 100%);
+            pointer-events: none;
+        }
+
+        .slide-info {
+            position: absolute;
+            bottom: 25px;
+            left: 30px;
+            max-width: 500px;
+            z-index: 2;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .hero-tag {
+            align-self: flex-start;
+            background: rgba(0, 242, 254, 0.15);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            font-family: var(--font-sub);
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .slide-info h2 {
+            font-family: var(--font-heading);
+            font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #ffffff;
+            line-height: 1.2;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .slide-info p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+        }
+
+        /* VIGNETTES DE PRÉVISUALISATION GAUCHE & DROITE */
+        .preview-card {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 130px;
+            height: 110px;
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            z-index: 3;
+        }
+
+        .preview-card:hover {
+            transform: translateY(-50%) scale(1.05);
+            border-color: var(--accent-cyan);
+        }
+
+        .preview-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        .prev-preview-card { left: 25px; }
+
+        /* Next preview agrandie en bureau */
+        .next-preview-card {
+            right: 25px;
+            width: 160px;  /* agrandi bureau */
+            height: 140px; /* agrandi bureau */
+            border-radius: 16px;
+            z-index: 4; /* au-dessus */
+            transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+        }
+
+        .next-preview-card:hover {
+            transform: translateY(-50%) scale(1.06);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.65);
+        }
+
+        .buttons-overlay {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            display: flex;
+            gap: 10px;
+            z-index: 5;
+        }
+
+        .carousel-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            background: rgba(18, 20, 29, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: white;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .carousel-btn:hover {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            color: #0d1117;
+            transform: scale(1.08);
+        }
+
+        .carousel-btn:active {
+            transform: scale(0.95);
+        }
+
+        .indicators {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .bar {
+            width: 24px;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bar:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .bar.active {
+            background-color: var(--accent-cyan);
+            width: 42px;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+
+        /* --- CATALOGUE & PANIER --- */
+        .main-container { padding: 1.5rem 1.5rem 2rem; }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .cart-overlay {
+            position: fixed; inset: 0; background: rgba(5, 6, 10, 0.75);
+            backdrop-filter: blur(6px); z-index: 200; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .cart-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .cart-drawer {
+            position: fixed; top: 0; right: -400px; width: 380px; max-width: 85vw;
+            height: 100%; background: #0f111a; border-left: 1px solid rgba(0, 242, 254, 0.2);
+            z-index: 201; display: flex; flex-direction: column;
+            transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cart-drawer.open { right: 0; }
+
+        .cart-header {
+            padding: 1.2rem 1.5rem; background: rgba(18, 20, 29, 0.95);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .cart-body {
+            flex: 1; overflow-y: auto; padding: 1.5rem;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        .empty-cart-view {
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center; gap: 1rem; color: var(--text-muted);
+        }
+
+        .empty-cart-icon {
+            width: 64px; height: 64px; background: rgba(0, 242, 254, 0.05);
+            border: 1px dashed var(--accent-cyan); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: var(--accent-cyan);
+        }
+
+        .cart-footer {
+            padding: 1.2rem 1.5rem; border-top: 1px solid var(--border-color);
+            background: rgba(12, 14, 22, 0.95); display: flex; flex-direction: column; gap: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #fff;
+            padding: 0.65rem 1.4rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: var(--glow-purple);
+        }
+
+        footer {
+            background: #06070a; border-top: 1px solid var(--border-color);
+            padding: 1.5rem; margin-top: auto; text-align: center;
+        }
+
+        .footer-text { color: var(--text-muted); font-size: 0.85rem; }
+
+        /* RESPONSIVE MOBILE */
+        @media (max-width: 900px) {
+            .sidebar-menu { display: none; }
+            .cart-btn .cart-text { display: none; }
+            .cart-btn, .account-btn { padding: 0.6rem; }
+            .account-btn span { display: none; }
+
+            .hero { padding: 1rem; }
+            .main-card {
+                height: 320px;
+                border-radius: 16px;
+            }
+
+            .prev-preview-card { display: none; } /* Masqué sur mobile pour garder l'interface claire */
+
+            .preview-card {
+                width: 95px;
+                height: 85px;
+                right: 12px;
+            }
+
+            /* augmenter aussi la prochaine vignette en mobile */
+            .next-preview-card {
+                width: 130px;  /* agrandi mobile */
+                height: 110px; /* agrandi mobile */
+                right: 12px;
+                border-radius: 14px;
+            }
+
+            .slide-info {
+                bottom: 15px;
+                left: 15px;
+                max-width: 65%;
+            }
+
+            .slide-info h2 { font-size: 1.1rem; }
+            .slide-info p { font-size: 0.75rem; }
+
+            .buttons-overlay {
+                bottom: 15px;
+                right: 12px;
+            }
+
+            .carousel-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 0.8rem;
+            }
+            .main-container { padding: 1rem; }
+            .header-container { padding: 0.7rem 1rem; }
+
+            /* Cacher le bouton "burger" en mode mobile */
+            .toggle-menu-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="brand-section">
+                <button class="toggle-menu-btn" id="toggleMenuBtn" title="Menu">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                
+                <a href="#" class="logo-group" id="siteLogo">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    <span class="logo-text">RELOAD <span>PRIME</span></span>
+                </a>
+            </div>
+
+            <div class="topbar-actions">
+                <a href="/compte" class="account-btn" title="Mon Compte">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Compte</span>
+                </a>
+                <button class="cart-btn" id="cartOpenBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+                    <span class="cart-text">Panier</span>
+                    <span class="cart-badge" id="cartCount">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="mobile-drawer-header">
+            <span class="logo-text">RELOAD <span>PRIME</span></span>
+            <button style="background:none; border:none; color: var(--text-muted); font-size: 1.5rem; cursor:pointer;" id="mobileCloseBtn">&times;</button>
+        </div>
+        <nav style="display:flex; flex-direction:column; gap:0.5rem;">
+            <a href="/" class="nav-link-btn active">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                <span>Accueil</span>
+            </a>
+            <a href="/historique" class="nav-link-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Historique des commandes</span>
+            </a>
+            <a href="/favoris" class="nav-link-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span>Favoris</span>
+            </a>
+            <a href="/parametres" class="nav-link-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Paramètres</span>
+            </a>
+            <a href="/support" class="nav-link-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span>Support & Contact</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="app-layout">
+        
+        <aside class="sidebar-menu" id="sidebarMenu">
+            <div class="sidebar-links">
+                <a href="/" class="nav-link-btn active sidebar-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    <span class="sidebar-text">Accueil</span>
+                </a>
+                <a href="/historique" class="nav-link-btn sidebar-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span class="sidebar-text">Historique</span>
+                </a>
+                <a href="/favoris" class="nav-link-btn sidebar-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    <span class="sidebar-text">Favoris</span>
+                </a>
+                <a href="/parametres" class="nav-link-btn sidebar-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span class="sidebar-text">Paramètres</span>
+                </a>
+                <a href="/support" class="nav-link-btn sidebar-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span class="sidebar-text">Support</span>
+                </a>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            
+            <section class="hero">
+                <div class="carousel-container" id="carouselContainer">
+                    <div class="main-card" id="mainCard">
+                        <img id="mainImg" class="bg-img" src="" alt="Image Principale">
+                        
+                        <div class="preview-card prev-preview-card" id="prevPreview">
+                            <img id="prevImg" src="" alt="Image Précédente">
+                        </div>
+
+                        <div class="preview-card next-preview-card" id="nextPreview">
+                            <img id="nextImg" src="" alt="Prochaine Image">
+                        </div>
+
+                        <div class="slide-info">
+                            <span class="hero-tag" id="mainTag">VITRINE & OFFRES</span>
+                            <h2 id="mainTitle">MONNAIES VIRTUELLES</h2>
+                            <p id="mainDesc">Site vitrine proposant l'achat sécurisé de monnaies pour vos jeux préférés.</p>
+                        </div>
+
+                        <div class="buttons-overlay">
+                            <button class="carousel-btn" id="prevBtn" aria-label="Précédent">&#10094;</button>
+                            <button class="carousel-btn" id="nextBtn" aria-label="Suivant">&#10095;</button>
+                        </div>
+                    </div>
+
+                    <div class="indicators" id="indicators"></div>
+                </div>
+            </section>
+
+            <main class="main-container">
+                <div class="products-grid" id="productsGrid"></div>
+            </main>
+
+            <footer>
+                <div class="footer-text">
+                    &copy; RELOAD PRIME - Site vitrine spécialisé dans la vente de monnaies de jeux. Tous droits réservés.
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <aside class="cart-drawer" id="cartDrawer">
+        <div class="cart-header">
+            <h3 style="font-family: var(--font-heading); color: var(--accent-cyan); font-size: 0.95rem;">VOTRE PANIER</h3>
+            <button style="background:none; border:none; color: var(--text-muted); font-size: 1.5rem; cursor:pointer;" id="cartCloseBtn">&times;</button>
+        </div>
+        <div class="cart-body" id="cartBody"></div>
+        <div class="cart-footer">
+            <div style="display:flex; justify-content:space-between; font-family:var(--font-heading);">
+                <span>TOTAL :</span>
+                <span id="cartTotal" style="color:var(--accent-cyan);">0 Ar</span>
+            </div>
+            <button class="btn-primary" style="width:100%; text-align:center; padding: 0.8rem;" onclick="handleCheckout()">Commander</button>
+        </div>
+    </aside>
+
+    <script>
+        const products = [];
+        let cart = [];
+
+        /* GESTION DU MENU LATÉRAL */
+        const sidebarMenu = document.getElementById('sidebarMenu');
+        const mobileDrawer = document.getElementById('mobileDrawer');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const toggleMenuBtn = document.getElementById('toggleMenuBtn');
+        const siteLogo = document.getElementById('siteLogo');
+        const mobileCloseBtn = document.getElementById('mobileCloseBtn');
+
+        function toggleMobileMenu(open) {
+            mobileDrawer.classList.toggle('open', open);
+            mobileOverlay.classList.toggle('open', open);
+        }
+
+        toggleMenuBtn.addEventListener('click', () => {
+            if (window.innerWidth <= 900) {
+                toggleMobileMenu(true);
+            } else {
+                sidebarMenu.classList.toggle('collapsed');
+            }
+        });
+
+        siteLogo.addEventListener('click', (e) => {
+            if (window.innerWidth <= 900) {
+                e.preventDefault();
+                toggleMobileMenu(true);
+            }
+        });
+
+        mobileCloseBtn.addEventListener('click', () => toggleMobileMenu(false));
+        mobileOverlay.addEventListener('click', () => toggleMobileMenu(false));
+
+        /* GESTION DU CARROUSEL AVEC 2 VIGNETTES D'APERÇU (GAUCHE ET DROITE) */
+        const slidesData = [
+            {
+                image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
+                tag: "OFFRES SPÉCIALES",
+                title: "MONNAIES POUR MMO",
+                desc: "Achetez des crédits et monnaies pour vos MMORPG préférés, livraison rapide."
+            },
+            {
+                image: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=1200&q=80",
+                tag: "DEMANDE EXPRESS",
+                title: "CRISTAUX & JETONS",
+                desc: "Pack de cristaux et jetons pour progression instantanée en jeu."
+            },
+            {
+                image: "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&w=1200&q=80",
+                tag: "MULTI-JEUX",
+                title: "MULTIPLES PLATEFORMES",
+                desc: "Monnaies pour PC, console et mobile — service vitrine sécurisé."
+            }
+        ];
+
+        let currentIndex = 0;
+        let autoPlayTimer = null;
+        const INTERVAL_TIME = 4500;
+
+        const carouselContainer = document.getElementById('carouselContainer');
+        const mainCard = document.getElementById('mainCard');
+        const mainImg = document.getElementById('mainImg');
+        const mainTag = document.getElementById('mainTag');
+        const mainTitle = document.getElementById('mainTitle');
+        const mainDesc = document.getElementById('mainDesc');
+        
+        const prevImg = document.getElementById('prevImg');
+        const nextImg = document.getElementById('nextImg');
+        const prevPreview = document.getElementById('prevPreview');
+        const nextPreview = document.getElementById('nextPreview');
+        
+        const indicatorsContainer = document.getElementById('indicators');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        // Génération des barres d'indicateur
+        slidesData.forEach((_, index) => {
+            const bar = document.createElement('div');
+            bar.classList.add('bar');
+            if (index === 0) bar.classList.add('active');
+            bar.addEventListener('click', () => {
+                updateCarousel(index);
+                resetAutoPlay();
+            });
+            indicatorsContainer.appendChild(bar);
+        });
+
+        const bars = document.querySelectorAll('.bar');
+
+        function updateCarousel(index) {
+            currentIndex = index;
+            if (currentIndex >= slidesData.length) currentIndex = 0;
+            if (currentIndex < 0) currentIndex = slidesData.length - 1;
+
+            const prevIndex = (currentIndex - 1 + slidesData.length) % slidesData.length;
+            const nextIndex = (currentIndex + 1) % slidesData.length;
+
+            mainImg.style.opacity = '0.2';
+            setTimeout(() => {
+                mainImg.src = slidesData[currentIndex].image;
+                mainTag.textContent = slidesData[currentIndex].tag;
+                mainTitle.textContent = slidesData[currentIndex].title;
+                mainDesc.textContent = slidesData[currentIndex].desc;
+                mainImg.style.opacity = '1';
+            }, 150);
+
+            // Mise à jour des images d'aperçu
+            prevImg.src = slidesData[prevIndex].image;
+            nextImg.src = slidesData[nextIndex].image;
+
+            bars.forEach((bar, i) => {
+                bar.classList.toggle('active', i === currentIndex);
+            });
+        }
+
+        function startAutoPlay() {
+            stopAutoPlay();
+            autoPlayTimer = setInterval(() => {
+                updateCarousel(currentIndex + 1);
+            }, INTERVAL_TIME);
+        }
+
+        function stopAutoPlay() {
+            if (autoPlayTimer) clearInterval(autoPlayTimer);
+        }
+
+        function resetAutoPlay() {
+            stopAutoPlay();
+            startAutoPlay();
+        }
+
+        nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateCarousel(currentIndex + 1);
+            resetAutoPlay();
+        });
+
+        prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateCarousel(currentIndex - 1);
+            resetAutoPlay();
+        });
+
+        nextPreview.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateCarousel(currentIndex + 1);
+            resetAutoPlay();
+        });
+
+        prevPreview.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateCarousel(currentIndex - 1);
+            resetAutoPlay();
+        });
+
+        carouselContainer.addEventListener('mouseenter', stopAutoPlay);
+        carouselContainer.addEventListener('mouseleave', startAutoPlay);
+
+        /* Swipe tactile / souris */
+        let startX = 0;
+        let isDragging = false;
+
+        const handleStart = (x) => {
+            isDragging = true;
+            startX = x;
+            stopAutoPlay();
+        };
+
+        const handleEnd = (x) => {
+            if (!isDragging) return;
+            isDragging = false;
+            const diffX = startX - x;
+
+            if (diffX > 40) {
+                updateCarousel(currentIndex + 1);
+            } else if (diffX < -40) {
+                updateCarousel(currentIndex - 1);
+            }
+            startAutoPlay();
+        };
+
+        mainCard.addEventListener('touchstart', (e) => handleStart(e.touches[0].clientX), { passive: true });
+        mainCard.addEventListener('touchend', (e) => handleEnd(e.changedTouches[0].clientX), { passive: true });
+        mainCard.addEventListener('mousedown', (e) => handleStart(e.clientX));
+        mainCard.addEventListener('mouseup', (e) => handleEnd(e.clientX));
+
+        updateCarousel(0);
+        startAutoPlay();
+
+        /* PANIER & CATALOGUE */
+        const productsGrid = document.getElementById('productsGrid');
+        const cartBody = document.getElementById('cartBody');
+        const cartCountEl = document.getElementById('cartCount');
+        const cartTotalEl = document.getElementById('cartTotal');
+
+        function renderProducts() {
+            if (products.length === 0) {
+                productsGrid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align:center; padding: 3rem 1rem; color:var(--text-muted);">
+                        <p>Aucune monnaie disponible pour le moment.</p>
+                    </div>`;
+            }
+        }
+
+        function updateCartUI() {
+            cartCountEl.textContent = cart.reduce((sum, item) => sum + item.qty, 0);
+            cartTotalEl.textContent = "0 Ar";
+
+            if (cart.length === 0) {
+                cartBody.innerHTML = `
+                    <div class="empty-cart-view">
+                        <div class="empty-cart-icon">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+                        </div>
+                        <p style="font-family: var(--font-heading); color:#fff; font-size:0.9rem;">Votre panier est vide</p>
+                    </div>`;
+            }
+        }
+
+        const cartBtn = document.getElementById('cartOpenBtn');
+        const cartCloseBtn = document.getElementById('cartCloseBtn');
+        const cartOverlay = document.getElementById('cartOverlay');
+        const cartDrawer = document.getElementById('cartDrawer');
+
+        function toggleCart(open) {
+            cartOverlay.classList.toggle('open', open);
+            cartDrawer.classList.toggle('open', open);
+        }
+
+        cartBtn.addEventListener('click', () => toggleCart(true));
+        cartCloseBtn.addEventListener('click', () => toggleCart(false));
+        cartOverlay.addEventListener('click', () => toggleCart(false));
+
+        function handleCheckout() {
+            if (cart.length === 0) alert("Votre panier est vide !");
+        }
+
+        renderProducts();
+        updateCartUI();
+    </script>
+</body>
+</html>
