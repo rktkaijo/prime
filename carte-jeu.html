@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carte Jeu — Reload Prime</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   CARTE JEU — Reload Prime
+   Fichier autonome — aucune dépendance externe
+   ══════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #060d1a;
+  color: #e8eaf0;
+  font-family: system-ui, sans-serif;
+  padding: 32px 24px;
+  min-height: 100vh;
+}
+
+h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #6b7a99;
+  margin-bottom: 16px;
+}
+
+/* ══ GRILLE ══ */
+.games-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 4px;
+}
+@media (min-width: 600px) { .games-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 900px) { .games-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* Carte seule → centrée */
+.games-grid .game-card:first-child:last-child {
+  grid-column: 1 / -1;
+  max-width: 240px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ══ CARTE ══ */
+.game-card {
+  position: relative;
+  height: 200px;
+  cursor: pointer;
+  transition: transform .28s cubic-bezier(.4,0,.2,1), filter .28s, opacity .22s ease;
+  background: transparent;
+}
+/* La carte apparaît une fois l'encoche calculée (évite le flash) */
+.game-card.gc-pending { opacity: 0; }
+@media (min-width: 480px) { .game-card { height: 270px; } }
+
+/* ── Hover ── */
+.game-card:hover { transform: translateY(-5px); filter: brightness(1.1); }
+
+/* ── Bordure cyberpunk (clip-path encoche bas-droite) ── */
+.gc-border {
+  position: absolute; inset: 0;
+  background: var(--gc, #00d4ff);
+  padding: 3px;
+  clip-path: polygon(
+    10px 0%, calc(100% - 10px) 0%, 100% 10px,
+    100% calc(100% - var(--nh, 44px)),
+    calc(100% - var(--nw, 124px)) calc(100% - var(--nh, 44px)),
+    calc(100% - var(--nw, 124px)) 100%,
+    10px 100%, 0% calc(100% - 10px), 0% 10px
+  );
+}
+.gc-inner {
+  width: 100%; height: 100%;
+  overflow: hidden; position: relative;
+  background: #0a1628;
+  clip-path: polygon(
+    8px 0%, calc(100% - 8px) 0%, 100% 8px,
+    100% calc(100% - var(--nh, 44px) + 2px),
+    calc(100% - var(--nw, 124px) + 2px) calc(100% - var(--nh, 44px) + 2px),
+    calc(100% - var(--nw, 124px) + 2px) 100%,
+    8px 100%, 0% calc(100% - 8px), 0% 8px
+  );
+}
+.gc-inner img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform .45s cubic-bezier(.4,0,.2,1);
+}
+.game-card:hover .gc-inner img { transform: scale(1.07); }
+
+/* ── Dégradé sombre en bas ── */
+.gc-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.9) 0%, rgba(0,0,0,.35) 45%, transparent 100%);
+}
+
+/* ── Placeholder si pas d'image ── */
+.game-img-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(0,212,255,.4);
+  background: #0a1628;
+}
+.game-img-placeholder svg { width: 44px; height: 44px; }
+
+/* ── Badge NEW ── */
+.game-badge {
+  position: absolute; top: 10px; left: 10px;
+  background: linear-gradient(135deg, #00d4ff, #0080ff);
+  color: #fff;
+  font-size: 9px; font-weight: 900;
+  padding: 3px 8px; border-radius: 99px;
+  letter-spacing: .6px; text-transform: uppercase;
+  z-index: 5;
+  box-shadow: 0 2px 10px rgba(0,212,255,.5);
+}
+
+/* ── Bouton nom du jeu (encoche bas-droite) ── */
+.gc-btn-wrap {
+  position: absolute; bottom: 0; right: 0;
+  width: auto; min-width: 100px; max-width: 90%;
+  height: 44px;
+  padding-top: 3px; padding-left: 3px;
+  z-index: 10;
+}
+.gc-btn {
+  width: 100%; height: 100%;
+  background: var(--gc, #000);
+  border: none; color: #fff;
+  font-size: 11px; font-weight: 800;
+  cursor: pointer;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: .04em;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0% 100%);
+  padding: 0 4mm;
+  line-height: 1.15; white-space: nowrap;
+  transition: filter .15s;
+  text-shadow: 0 1px 4px rgba(0,0,0,.6);
+}
+.gc-btn:hover { filter: brightness(1.15); }
+
+/* ── Skeleton de chargement ── */
+.skel {
+  background: rgba(255,255,255,.06);
+  animation: skPulse 1.4s ease-in-out infinite;
+}
+@keyframes skPulse {
+  0%,100% { opacity:.6 }
+  50%      { opacity:.3 }
+}
+</style>
+</head>
+<body>
+
+<h2>Choisir un jeu</h2>
+<div class="games-grid" id="gamesGrid">
+  <!-- Skeletons remplacés par JS -->
+  <div class="skel" style="height:270px;border-radius:6px"></div>
+  <div class="skel" style="height:270px;border-radius:6px"></div>
+  <div class="skel" style="height:270px;border-radius:6px"></div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   DONNÉES DE DÉMONSTRATION
+   Remplacez ces objets par vos données réelles.
+   Champs reconnus :
+     id            → identifiant unique (string)
+     name          → nom affiché sur le bouton
+     color         → couleur hex de la carte et du bouton
+     card_image_url → URL de l'image de couverture
+     is_new        → true → affiche le badge "NEW"
+   ══════════════════════════════════════════ */
+const JEUX = [
+  {
+    id            : "free-fire",
+    name          : "FREE FIRE",
+    color         : "#FF6B00",
+    card_image_url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&q=80",
+    is_new        : false
+  },
+  {
+    id            : "pubg",
+    name          : "PUBG",
+    color         : "#F4C430",
+    card_image_url: "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=400&q=80",
+    is_new        : false
+  },
+  {
+    id            : "mobile-legends",
+    name          : "MOBILE LEGENDS",
+    color         : "#00d4ff",
+    card_image_url: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&q=80",
+    is_new        : true
+  }
+];
+
+/* ══════════════════════════════════════════
+   FONCTIONS
+   ══════════════════════════════════════════ */
+
+/* Icône gamepad SVG utilisée comme fallback */
+const GAMEPAD_SVG = `<svg viewBox="0 0 24 24" width="44" height="44" fill="none"
+  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="6" y1="12" x2="10" y2="12"/>
+  <line x1="8" y1="10" x2="8" y2="14"/>
+  <circle cx="15" cy="11" r="1"/>
+  <circle cx="17" cy="13" r="1"/>
+  <rect x="2" y="6" width="20" height="12" rx="4"/>
+</svg>`;
+
+/* Remplacer une image cassée par le placeholder */
+function gcImgErr(el) {
+  el.onerror = null;
+  el.parentNode.innerHTML = `<div class="game-img-placeholder">${GAMEPAD_SVG}</div>`;
+}
+window.gcImgErr = gcImgErr;
+
+/**
+ * Génère le HTML d'une carte jeu.
+ * @param {Object} g    - données du jeu
+ * @param {string} cbFn - nom de la fonction JS appelée au clic (string)
+ */
+function gameCardHtml(g, cbFn) {
+  const img    = g.card_image_url || g.cardImage || g.image_url || g.imageUrl || '';
+  const color  = g.color || '#00d4ff';
+  const isNew  = g.is_new || g.isNew || false;
+  const name   = g.name || g.id;
+
+  return `<div class="game-card gc-pending" style="--gc:${color}"
+              onclick="${cbFn}('${g.id}')">
+    ${isNew ? `<div class="game-badge">NEW</div>` : ''}
+    <div class="gc-border">
+      <div class="gc-inner">
+        ${img
+          ? `<img src="${img}" alt="${name}" loading="lazy"
+               onerror="gcImgErr(this)">`
+          : `<div class="game-img-placeholder">${GAMEPAD_SVG}</div>`}
+        <div class="gc-overlay"></div>
+      </div>
+    </div>
+    <div class="gc-btn-wrap">
+      <button class="gc-btn"
+        onclick="event.stopPropagation();${cbFn}('${g.id}')">
+        ${name}
+      </button>
+    </div>
+  </div>`;
+}
+
+/**
+ * Calcule la largeur du bouton pour adapter l'encoche (clip-path).
+ * Attend que la police Orbitron soit chargée avant de mesurer.
+ */
+function syncCardNotches(grid) {
+  var ready = document.fonts && document.fonts.ready
+    ? document.fonts.ready : Promise.resolve();
+
+  ready.then(function () {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        grid.querySelectorAll('.game-card').forEach(function (card) {
+          var wrap = card.querySelector('.gc-btn-wrap');
+          if (wrap) {
+            var w = wrap.getBoundingClientRect().width;
+            if (w > 4) card.style.setProperty('--nw', (w + 4) + 'px');
+          }
+          card.classList.remove('gc-pending'); /* révèle la carte */
+        });
+      });
+    });
+  });
+}
+
+/**
+ * Rendu de la grille à partir d'un tableau de jeux.
+ * @param {Array}  jeux  - tableau d'objets jeu
+ * @param {string} gridId - id de l'élément grille
+ * @param {string} cbFn  - fonction appelée au clic
+ */
+function renderJeux(jeux, gridId, cbFn) {
+  cbFn = cbFn || 'onJeuClick';
+  var grid = document.getElementById(gridId);
+  if (!grid) return;
+
+  if (!jeux.length) {
+    grid.innerHTML = '<p style="color:#6b7a99;font-size:13px;text-align:center;padding:20px 0">Aucun jeu disponible.</p>';
+    return;
+  }
+
+  grid.innerHTML = jeux.map(function (g) {
+    return gameCardHtml(g, cbFn);
+  }).join('');
+
+  syncCardNotches(grid);
+}
+
+/* ══════════════════════════════════════════
+   CALLBACK AU CLIC
+   Remplacez cette fonction par votre logique de navigation.
+   ══════════════════════════════════════════ */
+function onJeuClick(id) {
+  var jeu = JEUX.find(function (j) { return j.id === id; });
+  alert('Jeu sélectionné : ' + (jeu ? jeu.name : id));
+  /* Dans l'app réelle : navTo('jeux'); loadGame(id); */
+}
+window.onJeuClick = onJeuClick;
+
+/* ══════════════════════════════════════════
+   INITIALISATION
+   ══════════════════════════════════════════ */
+renderJeux(JEUX, 'gamesGrid', 'onJeuClick');
+</script>
+</body>
+</html>

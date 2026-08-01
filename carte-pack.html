@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carte Pack — Reload Prime</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Oxanium:wght@900&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   CARTE PACK — Reload Prime
+   Fichier autonome — aucune dépendance externe
+   ══════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --game-accent : #00d4ff;   /* remplacée par la couleur du jeu sélectionné */
+  --card2       : #0d1526;
+  --border      : rgba(255,255,255,.08);
+  --border2     : rgba(255,255,255,.16);
+  --text2       : #b0bcd8;
+  --text3       : #6b7a99;
+}
+
+body {
+  background: #060d1a;
+  color: #e8eaf0;
+  font-family: system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* ══ HERO BANNIÈRE ══ */
+.game-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 180px;
+  display: flex; align-items: flex-end;
+  isolation: isolate;
+}
+.hero-bg-img {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #050b14;
+}
+.hero-overlay {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 90% at 18% 100%,
+      color-mix(in srgb, var(--game-accent) 30%, transparent) 0%,
+      transparent 56%),
+    linear-gradient(180deg,
+      rgba(2,8,16,.05) 0%,
+      rgba(2,8,16,.4) 55%,
+      rgba(2,8,16,.88) 100%);
+}
+.game-hero::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; z-index: 2;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, var(--game-accent) 85%, transparent) 50%,
+    transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--game-accent) 70%, transparent);
+}
+.hero-rel { position: relative; z-index: 1; padding: 14px 16px 20px; width: 100%; }
+.hero-back {
+  position: absolute; top: 14px; left: 16px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 700; color: rgba(255,255,255,.7);
+  cursor: pointer;
+  background: rgba(10,16,26,.45); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.14); border-radius: 8px;
+  padding: 5px 10px; transition: background .15s, border-color .15s;
+}
+.hero-back:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.3); }
+.hero-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.hero-game-row {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 34px; padding: 12px; border-radius: 18px;
+  background: linear-gradient(135deg, rgba(10,16,26,.5), rgba(10,16,26,.18));
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.hero-icon {
+  width: 72px; height: 72px; border-radius: 17px;
+  overflow: hidden; background: #0a1628; flex-shrink: 0;
+  border: 2.5px solid var(--game-accent, rgba(255,255,255,.15));
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--game-accent) 16%, transparent),
+    0 8px 20px rgba(0,0,0,.45),
+    0 0 18px color-mix(in srgb, var(--game-accent) 45%, transparent);
+  display: flex; align-items: center; justify-content: center;
+}
+.hero-icon img { width: 100%; height: 100%; object-fit: cover; }
+.hero-title-t {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 23px; font-weight: 900; color: #fff;
+  line-height: 1.12; margin-bottom: 5px;
+  text-shadow: 0 2px 10px rgba(0,0,0,.6);
+}
+.hero-sub-t { font-size: 12px; color: rgba(255,255,255,.68); }
+.live-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 7px;
+  background: rgba(34,197,94,.14); border: 1px solid rgba(34,197,94,.32);
+  border-radius: 99px; padding: 3px 9px;
+  font-size: 10px; font-weight: 800; color: #4ade80;
+}
+.live-pill span {
+  width: 6px; height: 6px; border-radius: 50%; background: #4ade80;
+  animation: livePulse 2s ease-in-out infinite;
+}
+@keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ══ CONTAINER ══ */
+.container { padding: 16px 16px 40px; max-width: 1400px; margin: 0 auto; }
+
+/* ══ CONTRÔLES ══ */
+.pack-sort-row {
+  display: flex; align-items: center; gap: 7px;
+  margin-bottom: 12px; flex-wrap: wrap;
+}
+.sec-lbl {
+  font-size: 11px; font-weight: 800; letter-spacing: .1em;
+  text-transform: uppercase; color: #6b7a99;
+  flex: 1;
+}
+.sort-btn {
+  padding: 6px 12px; border-radius: 99px;
+  border: 1px solid var(--border); background: var(--card2);
+  color: var(--text3); font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all .15s; font-family: inherit;
+}
+.sort-btn.active {
+  background: color-mix(in srgb, var(--game-accent) 12%, transparent);
+  border-color: var(--border2);
+  color: var(--game-accent);
+}
+
+/* ── Onglets catégories ── */
+.cat-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.cat-btn {
+  flex: 1 1 auto; min-width: 90px;
+  padding: 12px 16px; border-radius: 14px;
+  border: 1px solid var(--border); background: var(--card2);
+  color: var(--text2); font-size: 13px; font-weight: 800;
+  cursor: pointer; transition: all .15s; font-family: inherit; text-align: center;
+}
+.cat-btn:hover { border-color: color-mix(in srgb, var(--game-accent) 40%, transparent); }
+.cat-btn.active {
+  background: var(--game-accent);
+  border-color: transparent; color: #000;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--game-accent) 30%, transparent);
+}
+
+/* ══ GRILLE DE PACKS ══ */
+.packs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px; margin-bottom: 16px;
+}
+@media (min-width: 600px) { .packs-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 900px) { .packs-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; } }
+
+/* ══ CARTE PACK ══ */
+.pack-card {
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: #0e1018; border-radius: 3px;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--game-accent) 22%, transparent),
+    0 0 28px color-mix(in srgb, var(--game-accent) 8%, transparent);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.pack-card:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--game-accent) 60%, transparent),
+    0 0 50px color-mix(in srgb, var(--game-accent) 22%, transparent);
+}
+.pack-card.popular {
+  box-shadow: 0 0 0 1px rgba(251,191,36,.45), 0 0 28px rgba(251,191,36,.12);
+}
+.pack-card.popular:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 0 1px rgba(251,191,36,.7), 0 0 42px rgba(251,191,36,.2);
+}
+
+/* Coins */
+.pc-corner { position: absolute; width: 14px; height: 14px; z-index: 5; border-color: var(--game-accent); }
+.pc-corner--tl { top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; }
+.pc-corner--br { bottom: 0; right: 0; border-bottom: 2px solid; border-right: 2px solid; }
+.pack-card.popular .pc-corner { border-color: #fbbf24; }
+
+/* Badge prix */
+.pc-badge {
+  position: relative; z-index: 6;
+  font-family: 'Orbitron', sans-serif;
+  font-size: .72rem; font-weight: 700;
+  padding: 4px 10px; border-radius: 2px;
+  letter-spacing: .04em;
+  clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+  background: var(--game-accent); color: #000;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--game-accent) 60%, transparent);
+  white-space: nowrap; flex-shrink: 0;
+}
+.pack-card.popular .pc-badge { background: #fbbf24; box-shadow: 0 0 12px rgba(251,191,36,.6); }
+
+/* Ligne haut (badge + favori) */
+.pc-top-row {
+  position: absolute; top: 10px; right: 10px;
+  z-index: 10; display: flex; align-items: center; gap: 6px;
+}
+.pc-fav-btn {
+  width: 28px; height: 28px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.48); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .15s, transform .12s, border-color .15s;
+  padding: 0;
+}
+.pc-fav-btn svg { width: 14px; height: 14px; stroke: rgba(255,255,255,.55); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: stroke .15s, fill .15s; }
+.pc-fav-btn.active { background: rgba(255,48,96,.2); border-color: rgba(255,48,96,.5); }
+.pc-fav-btn.active svg { stroke: #ff3060; fill: #ff3060; }
+.pc-fav-btn:hover { transform: scale(1.14); }
+
+.pop-badge {
+  position: absolute; top: 8px; left: 10px;
+  background: rgba(251,191,36,.18); border: 1px solid rgba(251,191,36,.4);
+  border-radius: 99px; padding: 2px 8px;
+  font-size: 9px; font-weight: 800; color: #fbbf24; z-index: 7;
+}
+
+/* Lueur haut */
+.pc-glow {
+  position: absolute; top: 0; left: 0; right: 0; height: 55%;
+  pointer-events: none; z-index: 1;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--game-accent) 15%, transparent) 0%, transparent 100%);
+}
+.pack-card.popular .pc-glow { background: linear-gradient(180deg, rgba(251,191,36,.13) 0%, transparent 100%); }
+
+/* Zone image */
+.pc-img-zone {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 16px 4px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  min-height: 148px;
+}
+.pc-img-zone::before {
+  content: ''; position: absolute; inset: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 58%, 0 88%);
+  background: var(--game-accent); opacity: .1;
+}
+.pc-img-zone::after {
+  content: ''; position: absolute; inset: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 58%, 0 88%);
+  background-image:
+    repeating-linear-gradient(45deg,  rgba(255,255,255,.07) 0, rgba(255,255,255,.07) 1px, transparent 1px, transparent 18px),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,.07) 0, rgba(255,255,255,.07) 1px, transparent 1px, transparent 18px);
+  pointer-events: none;
+}
+.pack-card.popular .pc-img-zone::before { background: #fbbf24; opacity: .07; }
+
+.pc-img {
+  width: 155px; height: 155px; object-fit: contain;
+  position: relative; z-index: 3;
+  filter: drop-shadow(0 0 18px color-mix(in srgb, var(--game-accent) 55%, transparent));
+}
+.pc-img.rounded { border-radius: 14px; }
+.pc-img-empty {
+  width: 80px; height: 80px; position: relative; z-index: 3;
+  opacity: .18; display: flex; align-items: center; justify-content: center; font-size: 40px;
+}
+.pack-card.popular .pc-img { filter: drop-shadow(0 0 18px rgba(251,191,36,.5)); }
+
+/* Contenu texte */
+.pc-contenu {
+  position: relative; z-index: 2;
+  padding: 12px 13px 14px;
+  display: flex; flex-direction: column; gap: 5px; flex: 1;
+}
+.pc-title-row { display: flex; align-items: center; gap: 7px; }
+.pc-tag {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .43rem; letter-spacing: .16em;
+  padding: 2px 5px; border-radius: 1px; font-weight: 700;
+  color: var(--game-accent); border: 1px solid var(--game-accent);
+}
+.pack-card.popular .pc-tag { color: #fbbf24; border-color: #fbbf24; }
+.pc-nom {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .82rem; font-weight: 700; letter-spacing: .06em;
+  color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pc-amt {
+  font-family: 'Oxanium', sans-serif;
+  font-size: 22px; font-weight: 900; color: #fff; line-height: 1;
+}
+.pc-unit {
+  font-size: 9px; font-weight: 700; color: var(--game-accent);
+  text-transform: uppercase; letter-spacing: .08em;
+  background: color-mix(in srgb, var(--game-accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--game-accent) 18%, transparent);
+  border-radius: 99px; display: inline-block; padding: 2px 9px; margin-bottom: 2px;
+}
+.pack-card.popular .pc-unit { color: #fbbf24; background: rgba(251,191,36,.09); border-color: rgba(251,191,36,.25); }
+.pc-bonus {
+  font-size: 9.5px; font-weight: 700; color: #4ade80;
+  display: flex; align-items: center; gap: 4px;
+}
+.pc-bonus::before { content: ''; display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #4ade80; }
+
+/* Bouton Acheter */
+.add-btn {
+  width: 100%; padding: 9px 12px; border: none; cursor: pointer;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  background: var(--game-accent); color: #000;
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+  border-radius: 2px;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--game-accent) 40%, transparent);
+  transition: filter .2s, transform .15s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  margin-top: 6px;
+}
+.add-btn:hover  { filter: brightness(1.25); transform: translateY(-1px); }
+.add-btn:active { transform: scale(.96); }
+.pack-card.popular .add-btn { background: #fbbf24; box-shadow: 0 0 16px rgba(251,191,36,.45); }
+</style>
+</head>
+<body>
+
+<!-- ══ HERO ══ -->
+<div class="game-hero">
+  <div class="hero-bg-img" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-back" onclick="retourJeux()">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    <span>Retour</span>
+  </div>
+  <div class="hero-rel">
+    <div class="hero-game-row">
+      <div class="hero-icon" id="heroIcon">🎮</div>
+      <div>
+        <div class="hero-title-t" id="heroTitle">FREE FIRE</div>
+        <div class="hero-sub-t" id="heroSub">Rechargez vos Diamonds instantanément</div>
+        <div class="live-pill"><span></span>Disponible</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTENU ══ -->
+<div class="container">
+
+  <!-- Onglets catégories (masqués si vides) -->
+  <div class="cat-tabs" id="catTabs" style="display:none"></div>
+
+  <!-- Tri -->
+  <div class="pack-sort-row">
+    <span class="sec-lbl">Trier :</span>
+    <button class="sort-btn active" data-sort="price_asc">Prix ↑</button>
+    <button class="sort-btn"       data-sort="price_desc">Prix ↓</button>
+    <button class="sort-btn"       data-sort="popular">Pop</button>
+  </div>
+
+  <!-- Grille (remplie par JS) -->
+  <div class="packs-grid" id="packsContainer"></div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   DONNÉES DE DÉMONSTRATION
+   Remplacez JEUX et PACKS par vos données réelles.
+   ══════════════════════════════════════════ */
+
+const JEUX = {
+  "free-fire": {
+    id          : "free-fire",
+    name        : "FREE FIRE",
+    color       : "#FF6B00",
+    description : "Rechargez vos Diamonds instantanément",
+    currency    : "Diamonds",
+    banner_url  : "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80",
+    image_url   : "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=200&q=80"
+  },
+  "pubg": {
+    id          : "pubg",
+    name        : "PUBG",
+    color       : "#F4C430",
+    description : "Rechargez vos UC instantanément",
+    currency    : "UC",
+    banner_url  : "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&q=80",
+    image_url   : "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=200&q=80"
+  }
+};
+
+/* Champs reconnus dans un objet pack :
+   id, name, amount, price, currency, imageUrl,
+   popular, bonus, category, game_id
+*/
+const PACKS = {
+  "free-fire": [
+    { id:"ff1",  name:"Starter",       amount:100,  price:5000,  currency:"Diamonds", popular:false, imageUrl:"" },
+    { id:"ff2",  name:"Booster",       amount:310,  price:14000, currency:"Diamonds", popular:true,  bonus:"10 bonus",  imageUrl:"" },
+    { id:"ff3",  name:"Pro Pack",      amount:520,  price:22000, currency:"Diamonds", popular:false, imageUrl:"" },
+    { id:"ff4",  name:"Elite",         amount:1060, price:42000, currency:"Diamonds", popular:false, imageUrl:"" },
+    { id:"ff5",  name:"Legend",        amount:2180, price:82000, currency:"Diamonds", popular:false, bonus:"50 bonus",  imageUrl:"" },
+    { id:"ff6",  name:"Ultimate",      amount:5600, price:200000,currency:"Diamonds", popular:false, imageUrl:"" }
+  ],
+  "pubg": [
+    { id:"pb1",  name:"Débutant",      amount:60,   price:4000,  currency:"UC",       popular:false, imageUrl:"" },
+    { id:"pb2",  name:"Standard",      amount:325,  price:20000, currency:"UC",       popular:true,  imageUrl:"" },
+    { id:"pb3",  name:"Premium",       amount:660,  price:38000, currency:"UC",       popular:false, bonus:"60 bonus",  imageUrl:"" },
+    { id:"pb4",  name:"Elite",         amount:1800, price:100000,currency:"UC",       popular:false, imageUrl:"" }
+  ]
+};
+
+/* ══════════════════════════════════════════
+   ÉTAT
+   ══════════════════════════════════════════ */
+var _currentGameId  = "free-fire";
+var _currentSort    = "price_asc";
+var _currentCat     = "all";
+var _favorites      = JSON.parse(localStorage.getItem('rp_fav_packs') || '[]');
+
+/* ══════════════════════════════════════════
+   FORMATAGE
+   ══════════════════════════════════════════ */
+function fmtAr(v) {
+  return new Intl.NumberFormat('fr-FR').format(Number(v || 0)) + ' Ar';
+}
+
+/* ══════════════════════════════════════════
+   TRI
+   ══════════════════════════════════════════ */
+function sortPacks(packs, key) {
+  var p = packs.slice();
+  if (key === 'price_asc')  return p.sort(function(a,b){ return (a.price||0)-(b.price||0); });
+  if (key === 'price_desc') return p.sort(function(a,b){ return (b.price||0)-(a.price||0); });
+  if (key === 'popular')    return p.sort(function(a,b){ return (b.popular?1:0)-(a.popular?1:0); });
+  return p;
+}
+
+/* ══════════════════════════════════════════
+   HERO (bannière du jeu)
+   ══════════════════════════════════════════ */
+function renderHero(gameId) {
+  var g = JEUX[gameId];
+  if (!g) return;
+
+  /* Couleur d'accent */
+  document.documentElement.style.setProperty('--game-accent', g.color || '#00d4ff');
+
+  /* Bannière */
+  var heroBg = document.getElementById('heroBg');
+  if (heroBg) heroBg.style.backgroundImage = g.banner_url ? "url('" + g.banner_url + "')" : '';
+
+  /* Icône */
+  var heroIcon = document.getElementById('heroIcon');
+  if (heroIcon) {
+    heroIcon.innerHTML = g.image_url
+      ? '<img src="' + g.image_url + '" alt="' + g.name + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px" onerror="this.parentNode.textContent=\'🎮\'">'
+      : '🎮';
+  }
+
+  document.getElementById('heroTitle').textContent = g.name || '';
+  document.getElementById('heroSub').textContent   = g.description || '';
+}
+
+/* ══════════════════════════════════════════
+   ONGLETS CATÉGORIES
+   ══════════════════════════════════════════ */
+function getCategories(packs) {
+  var cats = {};
+  packs.forEach(function(p) { if (p.category) cats[p.category] = true; });
+  return Object.keys(cats);
+}
+
+function renderCatTabs(packs) {
+  var tabs = document.getElementById('catTabs');
+  if (!tabs) return;
+  var cats = getCategories(packs);
+  if (!cats.length) { tabs.style.display = 'none'; tabs.innerHTML = ''; return; }
+
+  tabs.style.display = 'flex';
+  tabs.innerHTML = cats.map(function(c) {
+    return '<button class="cat-btn' + (_currentCat === c ? ' active' : '') + '" data-cat="' + c + '">' + c + '</button>';
+  }).join('');
+
+  tabs.querySelectorAll('button[data-cat]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      _currentCat = (_currentCat === btn.dataset.cat) ? 'all' : btn.dataset.cat;
+      renderCatTabs(packs);
+      renderPacks(packs);
+    });
+  });
+}
+
+/* ══════════════════════════════════════════
+   RENDU DES CARTES PACKS
+   ══════════════════════════════════════════ */
+var _packData = [];   /* référence aux packs affichés pour les event listeners */
+
+function renderPacks(packs) {
+  var container = document.getElementById('packsContainer');
+  if (!container) return;
+
+  /* Filtrage catégorie */
+  var filtered = (_currentCat === 'all')
+    ? packs
+    : packs.filter(function(p) { return (p.category||'') === _currentCat; });
+
+  /* Tri */
+  var sorted = sortPacks(filtered, _currentSort);
+  _packData  = sorted;
+
+  if (!sorted.length) {
+    container.innerHTML = '<p style="color:#6b7a99;font-size:12px;grid-column:1/-1">Aucun pack disponible.</p>';
+    return;
+  }
+
+  var heartSvg = '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+
+  container.innerHTML = sorted.map(function(p, i) {
+    var pop     = p.popular || false;
+    var isFav   = _favorites.indexOf(p.id) !== -1;
+    var safeImg = (p.imageUrl || '').replace(/^http:/i, 'https:');
+
+    return '<div class="pack-card' + (pop ? ' popular' : '') + '" data-idx="' + i + '">\n' +
+      '  <div class="pc-corner pc-corner--tl"></div>\n' +
+      '  <div class="pc-corner pc-corner--br"></div>\n' +
+      (pop ? '  <div class="pop-badge">POP</div>\n' : '') +
+      '  <div class="pc-top-row">\n' +
+      '    <div class="pc-badge">' + fmtAr(p.price) + '</div>\n' +
+      '    <button class="pc-fav-btn' + (isFav ? ' active' : '') + '" data-pack-id="' + p.id + '" aria-label="Favori">' + heartSvg + '</button>\n' +
+      '  </div>\n' +
+      '  <div class="pc-glow"></div>\n' +
+      '  <div class="pc-img-zone">\n' +
+      (safeImg
+        ? '    <img class="pc-img' + (/\.(jpe?g|webp)/i.test(safeImg) ? ' rounded' : '') + '" src="' + safeImg + '" alt="' + (p.amount||'') + ' ' + (p.currency||'') + '" loading="lazy" onerror="this.parentNode.innerHTML=\'<div class=pc-img-empty>💎</div>\'">\n'
+        : '    <div class="pc-img-empty">💎</div>\n') +
+      '  </div>\n' +
+      '  <div class="pc-contenu">\n' +
+      '    <div class="pc-title-row">\n' +
+      '      <span class="pc-tag">PACK</span>\n' +
+      '      <span class="pc-nom">' + (p.name||'') + '</span>\n' +
+      '    </div>\n' +
+      '    <div class="pc-amt">' + (p.amount||'') + '</div>\n' +
+      '    <div class="pc-unit">' + (p.currency||'Crédits') + '</div>\n' +
+      (p.bonus ? '    <div class="pc-bonus">+' + p.bonus + '</div>\n' : '') +
+      '    <button class="add-btn" data-pack-id="' + p.id + '">ACHETER</button>\n' +
+      '  </div>\n' +
+      '</div>';
+  }).join('');
+
+  /* ── Événements boutons Acheter ── */
+  container.querySelectorAll('.add-btn[data-pack-id]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var pack = sorted.find(function(p){ return p.id === btn.dataset.packId; });
+      if (pack) onAcheterClick(pack);
+    });
+  });
+
+  /* ── Événements boutons Favoris ── */
+  container.querySelectorAll('.pc-fav-btn[data-pack-id]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var id  = btn.dataset.packId;
+      var idx = _favorites.indexOf(id);
+      if (idx === -1) { _favorites.push(id); btn.classList.add('active'); }
+      else            { _favorites.splice(idx,1); btn.classList.remove('active'); }
+      localStorage.setItem('rp_fav_packs', JSON.stringify(_favorites));
+    });
+  });
+}
+
+/* ══════════════════════════════════════════
+   CALLBACKS (à adapter à votre app)
+   ══════════════════════════════════════════ */
+
+/** Appelé quand l'utilisateur clique "Acheter" */
+function onAcheterClick(pack) {
+  alert('Achat : ' + pack.amount + ' ' + pack.currency + ' — ' + fmtAr(pack.price));
+  /* Dans l'app réelle : addToCart(pack) */
+}
+
+/** Appelé par le bouton Retour du hero */
+function retourJeux() {
+  alert('Retour à la liste des jeux');
+  /* Dans l'app réelle : showGameSelect() */
+}
+window.retourJeux = retourJeux;
+
+/* ══════════════════════════════════════════
+   CHARGEMENT D'UN JEU
+   Appelez loadGame(id) pour afficher un jeu et ses packs.
+   ══════════════════════════════════════════ */
+function loadGame(gameId) {
+  _currentGameId = gameId;
+  _currentCat    = 'all';
+  _currentSort   = 'price_asc';
+
+  /* Remettre le tri à sa valeur par défaut visuellement */
+  document.querySelectorAll('.sort-btn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.sort === 'price_asc');
+  });
+
+  renderHero(gameId);
+
+  var packs = PACKS[gameId] || [];
+  renderCatTabs(packs);
+  renderPacks(packs);
+}
+window.loadGame = loadGame;
+
+/* ══════════════════════════════════════════
+   BOUTONS DE TRI
+   ══════════════════════════════════════════ */
+document.querySelectorAll('.sort-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.sort-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    _currentSort = btn.dataset.sort;
+    renderPacks(PACKS[_currentGameId] || []);
+  });
+});
+
+/* ══════════════════════════════════════════
+   INITIALISATION
+   ══════════════════════════════════════════ */
+loadGame("free-fire");
+</script>
+</body>
+</html>
